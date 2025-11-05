@@ -13,3 +13,24 @@ Security Feedback: Buzzer and LED indicate success or failure of authentication 
 Relay Control: System activates a relay to unlock the door when correct credentials are presented.
 
 User-Friendly Interface: Real-time instructions and system state display.
+
+# Hardware Components
+ATmega328P Microcontroller
+
+Fingerprint Sensor Module
+
+4x3 Matrix Keypad
+
+16x2 LCD Display (LM016L)
+
+12V Relay Module with Driver Transistor (BC547)
+
+Buzzer and LED Indicator
+
+Crystal Oscillator (16 MHz) & Capacitors
+
+Flyback Diode (IN4007)
+
+Pull-down/pull-up Resistors
+
+Connecting Jumper Wires
