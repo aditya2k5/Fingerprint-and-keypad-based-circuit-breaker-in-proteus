@@ -34,3 +34,6 @@ Flyback Diode (IN4007)
 Pull-down/pull-up Resistors
 
 Connecting Jumper Wires
+# Circuit Diagram
+<img width="1189" height="831" alt="image" src="https://github.com/user-attachments/assets/8639bc84-683f-4bc3-8b82-f41b61e972fc" />
+
