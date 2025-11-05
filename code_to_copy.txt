@@ -1,0 +1,131 @@
+#include <LiquidCrystal.h>
+#include <Keypad.h>
+#include <EEPROM.h>
+
+// LCD
+LiquidCrystal lcd(A0, A1, A2, A3, A4, A5);
+
+// 4x3 Keypad
+const byte ROWS = 4;
+const byte COLS = 3;
+char keys[ROWS][COLS] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'},
+  {'*','0','#'}
+};
+byte rowPins[ROWS] = {4, 5, 6, 7};    // Adjust to your schematic
+byte colPins[COLS] = {8, 9, 10};      // Adjust to your schematic
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+
+// Pins
+#define LED_PIN    2
+#define BUZZER_PIN 3
+#define RELAY_PIN  12
+
+char defaultPin[5] = "1234";
+
+void save_pin_to_eeprom(const char *pin) {
+  for (int i = 0; i < 4; i++) EEPROM.write(i, pin[i]);
+  EEPROM.write(4, '\0');
+}
+void read_pin_from_eeprom(char *buf) {
+  for (int i = 0; i < 5; i++) buf[i] = EEPROM.read(i);
+  if (buf[0] == 0xFF || buf[0] == 0) strcpy(buf, "1234");
+}
+
+bool fingerprint_match(bool admin_mode) {
+  delay(800); // Simulate
+  return true;
+}
+
+void feedback_access_granted(const char* action) {
+  lcd.clear();
+  lcd.print(action); // "Turned ON" or "Turned OFF"
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(600);
+  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+  delay(600);
+  digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+}
+
+void feedback_access_denied() {
+  lcd.clear();
+  lcd.print("Access Denied");
+  for (int i=0; i<3; i++) {
+    digitalWrite(BUZZER_PIN, HIGH); delay(200);
+    digitalWrite(BUZZER_PIN, LOW); delay(200);
+  }
+}
+
+bool verify_keypad_code() {
+  char correct_code[5], entered[5];
+  int count = 0;
+  read_pin_from_eeprom(correct_code);
+  lcd.clear(); lcd.print("Enter PIN:"); lcd.setCursor(0,1);
+
+  while (count < 4) {
+    char key = keypad.getKey();
+    if (key) {
+      if (key == '#') {
+        lcd.clear(); lcd.print("Reset PIN Mode"); delay(1000);
+        lcd.clear(); lcd.print("Admin Finger..."); delay(700);
+        if (fingerprint_match(true)) {
+          lcd.clear(); lcd.print("Enter New PIN:"); lcd.setCursor(0,1);
+          for (int i=0;i<4;i++) {
+            char k; do { k = keypad.getKey(); } while(!k);
+            entered[i]=k; lcd.print('*');
+          }
+          entered[4]='\0'; save_pin_to_eeprom(entered);
+          lcd.clear(); lcd.print("PIN Updated!"); delay(1200);
+        } else {
+          lcd.clear(); lcd.print("Admin Denied!"); delay(900);
+        }
+        return false;
+      }
+      lcd.print('*'); entered[count++]=key;
+    }
+  }
+  entered[4]='\0';
+  return (strcmp(entered, correct_code)==0);
+}
+
+void setup() {
+  lcd.begin(16,2);
+  pinMode(LED_PIN, OUTPUT); pinMode(BUZZER_PIN, OUTPUT); pinMode(RELAY_PIN, OUTPUT);
+  digitalWrite(RELAY_PIN, LOW); // Start relay OFF
+  lcd.clear(); lcd.print("System Ready"); delay(1200);
+  if (EEPROM.read(0) == 0xFF) save_pin_to_eeprom(defaultPin);
+}
+
+void loop() {
+  lcd.clear();
+  if (digitalRead(RELAY_PIN) == LOW) {
+    // System is OFF -- allow to turn ON
+    lcd.print("Place Finger...");
+    delay(400);
+    if (fingerprint_match(false)) {
+      lcd.clear(); lcd.print("Fingerprint OK"); delay(900);
+      if (verify_keypad_code()) {
+        digitalWrite(RELAY_PIN, HIGH); // Turn ON
+        feedback_access_granted("Turned ON");
+      } else {
+        feedback_access_denied();
+      }
+    } else {
+      lcd.clear(); lcd.print("No Match Found"); delay(800);
+    }
+  } else {
+    // System is ON -- allow to turn OFF
+    lcd.print("Enter PIN to OFF");
+    lcd.setCursor(0,1);
+    if (verify_keypad_code()) {
+      digitalWrite(RELAY_PIN, LOW); // Turn OFF
+      feedback_access_granted("Turned OFF");
+    } else {
+      feedback_access_denied();
+    }
+    delay(800);
+  }
+}
