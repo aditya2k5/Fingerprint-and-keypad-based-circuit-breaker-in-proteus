@@ -1,0 +1,69 @@
+User Manual: Arduino Fingerprint + Keypad Circuit Breaker Control System
+This system securely controls a circuit breaker using dual authentication: fingerprint verification and a keypad PIN code. It is designed to enhance electrical safety by ensuring only authorized personnel can switch the circuit breaker ON or OFF.
+
+Features
+
+Dual authentication using fingerprint sensor and keypad PIN code.
+
+Secure PIN storage in EEPROM with option to reset via admin fingerprint.
+
+LCD displays user prompts, status, and feedback.
+
+Visual (LED) and audible (buzzer) feedback for access granted or denied.
+
+Relay output controls the circuit breaker (or contactor).
+
+Admin mode for resetting/updating PIN securely.
+
+
+How to Use
+
+Power On
+System initializes, LCD displays "System Ready".
+
+Default PIN is set to "1234" if EEPROM is empty.
+
+Turning ON the Circuit Breaker
+LCD prompts "Place Finger...".
+
+Place finger on sensor.
+
+If fingerprint matches authorized prints, LCD shows "Fingerprint OK".
+
+Enter 4-digit PIN on keypad when prompted.
+
+Correct PIN activates relay to switch breaker ON.
+
+LCD shows "Turned ON", buzzer beeps once, LED flashes twice.
+
+If fingerprint or PIN invalid, LCD shows "Access Denied", buzzer sounds multiple beeps.
+
+
+
+Turning OFF the Circuit Breaker
+
+When breaker is ON, LCD shows "Enter PIN to OFF".
+
+Enter your PIN to deactivate relay and switch breaker OFF.
+
+Success feedback: LCD shows "Turned OFF", buzzer and LED feedback.
+
+Failure feedback: "Access Denied" with buzzer alert.
+
+
+
+Reset or Change PIN (Admin Mode)
+
+During PIN entry, press #.
+
+LCD displays "Reset PIN Mode" then "Admin Finger...".
+
+Scan admin fingerprint.
+
+If authorized, LCD prompts to "Enter New PIN:".
+
+Enter new 4-digit PIN.
+
+LCD confirms "PIN Updated!".
+
+Unauthorized attempts show "Admin Denied!".
