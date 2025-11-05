@@ -4,7 +4,7 @@ This project implements a secure door lock system using an ATmega328P microcontr
 # Features
 Fingerprint Authentication: Uses a standard fingerprint sensor to verify user identity.
 
-Password Input: 4x4 Matrix Keypad enables PIN entry as a secondary authentication method.
+Password Input: 4x3 Matrix Keypad enables PIN entry as a secondary authentication method.
 
 LCD Display: Presents user prompts, authentication status, and system feedback (16x2 LCD).
 
